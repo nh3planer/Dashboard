@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Projekt-Dashboard</title>
+<link rel="stylesheet" href="/static/style.css">
+<script src="/static/chart.umd.js"></script>
+</head>
+<body>
+
+<!-- ===================== LOGIN ===================== -->
+<div id="login-view" class="login-wrap">
+  <form id="login-form" class="login-card">
+    <h1>📊 Projekt-Dashboard</h1>
+    <p class="sub">Anmeldung – Rollenbasierte Zugriffskontrolle</p>
+    <label>Benutzername</label>
+    <input id="login-user" type="text" autocomplete="username" required>
+    <label>Passwort</label>
+    <input id="login-pass" type="password" autocomplete="current-password" required>
+    <button type="submit" class="btn primary">Anmelden</button>
+    <p id="login-error" class="error hidden"></p>
+    <details class="demo-hint">
+      <summary>Demo-Zugänge</summary>
+      <ul>
+        <li><b>geschaeftsfuehrer / demo123</b> – Alles inkl. Benutzerverwaltung &amp; Management-KPIs</li>
+        <li><b>management / demo123</b> – Standard- &amp; Management-KPIs, alle Projekte</li>
+        <li><b>projektleiter / demo123</b> – Standard-KPIs, eigene Projekte</li>
+        <li><b>kunde / demo123</b> – Bauherren-Sicht: Status &amp; Termine des eigenen Projekts</li>
+      </ul>
+    </details>
+  </form>
+</div>
+
+<!-- ===================== APP ===================== -->
+<div id="app-view" class="hidden">
+  <header class="topbar">
+    <div class="brand">📊 Projekt-Dashboard</div>
+    <nav id="main-nav">
+      <button data-view="dashboard" class="nav-btn active">Dashboard</button>
+      <button data-view="projects" class="nav-btn">Projekte</button>
+      <button id="nav-management" data-view="management" class="nav-btn hidden">Management</button>
+      <button id="nav-reports" data-view="reports" class="nav-btn">Berichte (PDF)</button>
+      <button id="nav-users" data-view="users" class="nav-btn hidden">Benutzerverwaltung</button>
+    </nav>
+    <div class="user-box">
+      <span id="user-name"></span>
+      <span id="user-role" class="role-badge"></span>
+      <button id="logout-btn" class="btn small">Abmelden</button>
+    </div>
+  </header>
+
+  <main>
+    <!-- ============ DASHBOARD ============ -->
+    <section id="view-dashboard" class="view active">
+      <h2>Übersicht: Standard-KPIs</h2>
+      <div id="kpi-standard-cards" class="kpi-grid"></div>
+      <h3>Projektvergleich (Soll-/Ist-Kosten &amp; Fertigstellungsgrad)</h3>
+      <div class="chart-row">
+        <div class="chart-card">
+          <h4>Kosten Soll vs. Ist je Projekt</h4>
+          <canvas id="chart-costs" height="220"></canvas>
+        </div>
+        <div class="chart-card">
+          <h4>Fertigstellungsgrad je Projekt</h4>
+          <canvas id="chart-progress" height="220"></canvas>
+        </div>
+      </div>
+      <div id="kpi-standard-table"></div>
+    </section>
+
+    <!-- ============ MANAGEMENT ============ -->
+    <section id="view-management" class="view">
+      <h2>🔒 Management-KPIs <span class="confidential">vertraulich</span></h2>
+      <div id="kpi-management-cards" class="kpi-grid"></div>
+      <div class="chart-row">
+        <div class="chart-card">
+          <h4>Portfolio-Ampel &amp; Budgetauslastung</h4>
+          <canvas id="chart-mgmt" height="220"></canvas>
+        </div>
+        <div class="chart-card">
+          <h4>Top-Risiken (Score = Wahrscheinlichkeit × Auswirkung)</h4>
+          <div id="mgmt-risks"></div>
+        </div>
+      </div>
+      <div id="kpi-management-table"></div>
+    </section>
+
+    <!-- ============ PROJEKTE ============ -->
+    <section id="view-projects" class="view">
+      <h2>Projekte – Ist/Soll, Terminplan &amp; Kosten</h2>
+      <select id="project-select" class="input"></select>
+      <div id="project-detail"></div>
+    </section>
+
+    <!-- ============ BERICHTE ============ -->
+    <section id="view-reports" class="view">
+      <h2>PDF-Berichte</h2>
+      <p>Wählen Sie Bericht und Projekt. Der Bericht wird als PDF generiert und heruntergeladen.</p>
+      <div class="report-form card">
+        <div class="report-field">
+          <label>Bericht (Feld)</label>
+          <select id="report-select" class="input"></select>
+        </div>
+        <div class="report-field">
+          <label>Projekt</label>
+          <select id="report-project" class="input"></select>
+        </div>
+        <button id="report-download" class="btn primary">PDF generieren &amp; herunterladen</button>
+        <span id="report-note"></span>
+      </div>
+      <p class="hint">Verfügbare Berichte: Projekt-Statusbericht, Kostenbericht, Terminbericht, Management-Report (nur GF/Management), Kundenbericht.</p>
+    </section>
+
+    <!-- ============ BENUTZER ============ -->
+    <section id="view-users" class="view">
+      <h2>Benutzerverwaltung</h2>
+      <div class="card">
+        <h3>Neuen Benutzer anlegen</h3>
+        <div class="user-form-grid">
+          <div><label>Benutzername</label><input id="nu-username" class="input"></div>
+          <div><label>Passwort</label><input id="nu-password" type="password" class="input"></div>
+          <div><label>Vollständiger Name</label><input id="nu-fullname" class="input"></div>
+          <div><label>Rolle / Bereich</label>
+            <select id="nu-role" class="input">
+              <option value="projektleiter">Projektleiter</option>
+              <option value="management">Management</option>
+              <option value="geschaeftsfuehrer">Geschäftsführer</option>
+              <option value="kunde">Kunde / Bauherr</option>
+            </select>
+          </div>
+          <button id="nu-create" class="btn primary">Benutzer anlegen</button>
+        </div>
+        <p id="nu-msg" class="hint"></p>
+      </div>
+      <div id="users-table"></div>
+      <div class="hint card">
+        <b>Rechteübersicht:</b>
+        <ul>
+          <li><b>Geschäftsführer:</b> Alle Bereiche, Benutzerverwaltung, Management-KPIs</li>
+          <li><b>Management:</b> Standard- &amp; Management-KPIs, alle Projekte, PDF-Reports (ohne Benutzerverwaltung)</li>
+          <li><b>Projektleiter:</b> Standard-KPIs und Vollzugriff auf eigene Projekte</li>
+          <li><b>Kunde/Bauherr:</b> Read-only: Status, Meilensteine &amp; Kundenbericht des eigenen Projekts</li>
+        </ul>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script src="/static/app.js"></script>
+</body>
+</html>

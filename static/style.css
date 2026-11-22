@@ -1,0 +1,87 @@
+:root {
+  --navy: #1f3a5f;
+  --blue: #2f6fb2;
+  --bg: #f2f5f9;
+  --card: #ffffff;
+  --green: #23a55a;
+  --yellow: #d99a0b;
+  --red: #d64541;
+  --text: #1c2733;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: "Segoe UI", system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); }
+.hidden { display: none !important; }
+
+/* ---------- Login ---------- */
+.login-wrap { display: flex; align-items: center; justify-content: center; min-height: 100vh; }
+.login-card { background: var(--card); padding: 2.2rem 2.5rem; border-radius: 14px; box-shadow: 0 12px 40px rgba(31,58,95,.18); width: 400px; }
+.login-card h1 { color: var(--navy); font-size: 1.5rem; margin-bottom: .3rem; }
+.login-card .sub { color: #67788c; margin-bottom: 1.2rem; font-size: .9rem; }
+.login-card label { display: block; font-size: .85rem; font-weight: 600; margin: .8rem 0 .25rem; }
+.login-card input { width: 100%; padding: .55rem .7rem; border: 1px solid #c6d2df; border-radius: 8px; font-size: 1rem; }
+.login-card button { width: 100%; margin-top: 1.2rem; }
+.demo-hint { margin-top: 1.2rem; font-size: .8rem; color: #67788c; }
+.demo-hint ul { margin: .5rem 0 0 1.1rem; }
+.error { color: var(--red); margin-top: .8rem; font-size: .85rem; }
+
+/* ---------- Layout ---------- */
+.topbar { display: flex; align-items: center; gap: 1.2rem; background: var(--navy); color: #fff; padding: .7rem 1.4rem; }
+.brand { font-weight: 700; font-size: 1.1rem; white-space: nowrap; }
+#main-nav { display: flex; gap: .3rem; flex: 1; flex-wrap: wrap; }
+.nav-btn { background: transparent; color: #cfe0f2; border: none; padding: .5rem .9rem; border-radius: 8px; cursor: pointer; font-size: .92rem; }
+.nav-btn:hover { background: rgba(255,255,255,.12); color: #fff; }
+.nav-btn.active { background: var(--blue); color: #fff; font-weight: 600; }
+.user-box { display: flex; align-items: center; gap: .6rem; }
+.role-badge { background: var(--blue); padding: .15rem .55rem; border-radius: 20px; font-size: .75rem; text-transform: uppercase; }
+main { max-width: 1280px; margin: 1.4rem auto; padding: 0 1.4rem; }
+.view { display: none; }
+.view.active { display: block; }
+h2 { color: var(--navy); margin-bottom: 1rem; }
+h3 { color: var(--navy); margin: 1.6rem 0 .8rem; }
+h4 { color: var(--navy); margin-bottom: .6rem; }
+
+/* ---------- KPI cards ---------- */
+.kpi-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: .9rem; }
+.kpi-card { background: var(--card); border-radius: 12px; padding: 1rem 1.1rem; box-shadow: 0 2px 10px rgba(31,58,95,.08); border-left: 5px solid var(--blue); }
+.kpi-card .kpi-label { font-size: .78rem; color: #67788c; text-transform: uppercase; letter-spacing: .4px; }
+.kpi-card .kpi-value { font-size: 1.55rem; font-weight: 700; color: var(--navy); margin-top: .2rem; }
+.kpi-card .kpi-sub { font-size: .78rem; color: #67788c; margin-top: .2rem; }
+.kpi-card.good { border-left-color: var(--green); }
+.kpi-card.warn { border-left-color: var(--yellow); }
+.kpi-card.bad { border-left-color: var(--red); }
+
+/* ---------- charts & cards ---------- */
+.chart-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); gap: 1rem; margin: 1rem 0; }
+.chart-card, .card { background: var(--card); border-radius: 12px; padding: 1.1rem 1.3rem; box-shadow: 0 2px 10px rgba(31,58,95,.08); margin-bottom: 1rem; }
+.confidential { background: var(--red); color: #fff; font-size: .7rem; padding: .2rem .6rem; border-radius: 20px; vertical-align: middle; }
+
+/* ---------- tables ---------- */
+table.data { width: 100%; border-collapse: collapse; background: var(--card); border-radius: 12px; overflow: hidden; box-shadow: 0 2px 10px rgba(31,58,95,.08); margin-top: .8rem; }
+table.data th { background: var(--navy); color: #fff; text-align: left; padding: .55rem .8rem; font-size: .85rem; }
+table.data td { padding: .5rem .8rem; border-bottom: 1px solid #e3eaf2; font-size: .88rem; }
+table.data tr.total td { font-weight: 700; background: #e8eff7; }
+.pill { padding: .1rem .55rem; border-radius: 20px; font-size: .75rem; font-weight: 600; color: #fff; }
+.pill.gruen { background: var(--green); } .pill.gelb { background: var(--yellow); } .pill.rot { background: var(--red); }
+.pill.offen { background: #8296ab; } .pill.erledigt { background: var(--green); } .pill.verspaetet { background: var(--red); }
+.pill.genehmigt { background: var(--green); } .pill.abgelehnt { background: var(--red); }
+
+/* ---------- forms ---------- */
+.input { padding: .5rem .7rem; border: 1px solid #c6d2df; border-radius: 8px; font-size: .95rem; min-width: 220px; }
+.btn { background: var(--blue); color: #fff; border: none; padding: .6rem 1.2rem; border-radius: 8px; cursor: pointer; font-size: .95rem; }
+.btn:hover { filter: brightness(1.08); }
+.btn.primary { background: var(--blue); }
+.btn.small { padding: .3rem .7rem; font-size: .8rem; background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.3); }
+.report-form { display: flex; gap: 1rem; align-items: flex-end; flex-wrap: wrap; }
+.report-field label { display: block; font-size: .8rem; font-weight: 600; margin-bottom: .3rem; color: var(--navy); }
+.hint { font-size: .82rem; color: #67788c; margin-top: .6rem; }
+.hint ul { margin: .4rem 0 0 1.1rem; }
+.user-form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: .8rem; align-items: end; }
+.user-form-grid label { display: block; font-size: .78rem; font-weight: 600; margin-bottom: .25rem; color: var(--navy); }
+.user-form-grid .input { min-width: 0; width: 100%; }
+
+/* ---------- terminplan timeline ---------- */
+.timeline { position: relative; margin: 1rem 0; }
+.tl-row { display: grid; grid-template-columns: 220px 1fr 150px; gap: .6rem; align-items: center; padding: .35rem 0; border-bottom: 1px dashed #e3eaf2; }
+.tl-bar { height: 14px; border-radius: 8px; background: #dde7f2; position: relative; overflow: visible; }
+.tl-bar .fill { position: absolute; top: 0; left: 0; height: 100%; border-radius: 8px; background: var(--blue); }
+.tl-bar .marker { position: absolute; top: -4px; width: 3px; height: 22px; background: var(--red); border-radius: 2px; }

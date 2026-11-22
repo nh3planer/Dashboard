@@ -36,9 +36,29 @@ def decode_token(token: str) -> dict:
     return jwt.decode(token, SECRET, algorithms=["HS256"])
 
 
+def normalize_username(name: str) -> str:
+    return (name.strip().lower()
+            .replace("ä", "ae").replace("ö", "oe").replace("ü", "ue")
+            .replace("ß", "ss").replace("ú", "ue"))
+
+
+def username_variants(name: str) -> list:
+    variants = [name.strip(), normalize_username(name)]
+    return list(dict.fromkeys(v for v in variants if v))
+
+
 def authenticate(username: str, password: str):
     conn = get_db()
-    user = conn.execute("SELECT * FROM users WHERE username = ? AND active = 1", (username,)).fetchone()
+    user = None
+    for variant in username_variants(username):
+        for col in ("username", "full_name"):
+            row = conn.execute(
+                f"SELECT * FROM users WHERE {col} = ? AND active = 1", (variant,)).fetchone()
+            if row:
+                user = row
+                break
+        if user:
+            break
     conn.close()
     if not user or not verify_password(password, user["salt"], user["password_hash"]):
         return None

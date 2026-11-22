@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: projekt-dashboard
+    runtime: docker
+    plan: free
+    envVars:
+      - key: DASHBOARD_JWT_SECRET
+        generateValue: true
+    healthCheckPath: /

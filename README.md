@@ -68,6 +68,26 @@ der Zugriff wird zusätzlich serverseitig erzwungen (`403` sonst).
 | Management-Report        | Management-KPIs, Portfolio, Top-Risiken      | nur GF & Management            |
 | Kundenbericht            | vereinfachter Status für Bauherrn             | alle                           |
 
+## Alternative: „Einfach nur ein Link“ – Hosting statt lokaler Installation
+
+Lokales Starten nicht möglich oder nicht gewünscht (z. B. ohne Python / ohne Kommandozeile)? Die Anwendung kann auch als Web-Dienst gehostet werden – danach genügt das Öffnen einer URL im Browser.
+
+Vorbereitet dafür:
+
+- `Dockerfile` (Container-Image mit uvicorn auf Port 8000)
+- `render.yaml` (Konfiguration für [Render](https://render.com), Free-Tier-tauglich; erzeugt automatisch einen sicheren JWT-Schlüssel)
+
+**Schritte auf Render (Beispiel, ~5 Minuten, nur Browser nötig):**
+
+1. Dieses GitHub-Repository (bzw. der `main`-Branch nach Merge) muss in Ihrem GitHub-Konto liegen
+2. Auf render.com mit GitHub anmelden → **„New Web Service“** → Repository `Dashboard` auswählen
+3. Render erkennt `render.yaml`/`Dockerfile` automatisch → Service erstellen
+4. Nach wenigen Minuten ist das Dashboard unter `https://<dienstname>.onrender.com` erreichbar (Anmeldung wie oben)
+
+Analog funktionieren Railway, Fly.io, Azure/AWS-Container oder ein firmeneigener Server (nur `docker build` + `docker run -p 8000:8000 ...`).
+
+> Hinweis: Das Free-Tier eignet sich gut für Demo/Evaluation. SQLite liegt dann im Container (beim Demo-Betrieb mit Seed-Daten unproblematisch); für produktiven Betrieb wird ein persistentes Volume oder PostgreSQL empfohlen.
+
 ## Projektstruktur
 
 ```

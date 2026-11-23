@@ -1,0 +1,44 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Server installieren
+        working-directory: server
+        run: npm ci
+
+      - name: Server-Smoke-Test (API antwortet)
+        working-directory: server
+        run: |
+          node src/server.js &
+          sleep 2
+          node -e "
+          const http = require('http');
+          const get = (p) => new Promise((res, rej) => http.get({host:'127.0.0.1',port:3000,path:p}, r => { let d=''; r.on('data', c => d+=c); r.on('end',()=>res(d)); }).on('error', rej));
+          (async () => {
+            const s = JSON.parse(await get('/api/summary'));
+            if (typeof s.project_count !== 'number') throw new Error('summary ungueltig');
+            const list = JSON.parse(await get('/api/projects'));
+            if (!Array.isArray(list) || list.length === 0) throw new Error('keine Projekte');
+            console.log('API-OK:', s.project_count, 'Projekte');
+          })().catch(e => { console.error(e); process.exit(1); });
+          "
+          kill %1
+
+      - name: Client installieren und bauen (TypeScript-Check)
+        working-directory: client
+        run: |
+          npm ci
+          npm run build

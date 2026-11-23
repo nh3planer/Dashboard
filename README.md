@@ -21,21 +21,28 @@ pip install -r requirements.txt
 python -m uvicorn backend.main:app --reload --port 8000
 ```
 
-Danach im Browser öffnen: <http://localhost:8000>
+Danach im Browser öffnen: <http://localhost:8000> – oder einfach `start.bat` doppelklicken (Windows).
 
 > **Hinweis:** Vor Produktivbetrieb den JWT-Schlüssel über `DASHBOARD_JWT_SECRET` setzen.
 
-## Demo-Zugänge (Passwort jeweils `demo123`)
+## Ersteinrichtung & Benutzerverwaltung
 
-| Benutzername        | Rolle           | Rechte                                                              |
-|---------------------|-----------------|---------------------------------------------------------------------|
-| `chef`              | Geschäftsführer | Alle Bereiche inkl. Benutzerverwaltung und Management-KPIs          |
-| `mgmt`              | Management      | Standard- & Management-KPIs, alle Projekte, PDF-Reports             |
-| `pl` / `pl2`        | Projektleiter   | Standard-KPIs, Vollzugriff auf eigene Projekte                      |
-| `kunde`             | Kunde / Bauherr | Read-only: Status, Termine und Kundenbericht des eigenen Projekts   |
+Es gibt **keine vorgegebenen Zugänge**. Beim allerersten Start erscheint automatisch die **Ersteinrichtung**:
 
-> **Tipp:** Auf der Anmeldeseite gibt es Ein-Klick-Buttons für alle Demo-Zugänge – kein Tippen nötig.
-> Die langen Namen (`geschaeftsfuehrer`, `management`, `projektleiter`) bleiben als Alias weiterhin gültig, Umlaute („geschäftsführer“) und Groß-/Kleinschreibung sind egal.
+1. Der erste Benutzer legt sich als **Administrator (Geschäftsführer)** an – mit Benutzername und Passwort **eigener Wahl** und wird direkt angemeldet
+2. Als Administrator im Bereich **„Benutzerverwaltung“** alle weiteren Benutzer anlegen:
+   - **Projektleiter**, **Management**, **Geschäftsführer** und **Kunde/Bauherr** (jeweils mit Name, Passwort, Rolle)
+3. Anschließend unter **„Projekt-Zuordnungen“** Bereiche freischalten: pro Projekt den **Projektleiter** und den **Kunden/Bauherrn** zuweisen
+   - Der Projektleiter erhält Vollzugriff auf sein Projekt, der Kunde sieht Status & Termine seines Projekts (read-only)
+
+| Rolle           | Rechte                                                              |
+|-----------------|---------------------------------------------------------------------|
+| Geschäftsführer (Administrator) | Alle Bereiche, Benutzerverwaltung, Management-KPIs   |
+| Management      | Standard- & Management-KPIs, alle Projekte, PDF-Reports             |
+| Projektleiter   | Standard-KPIs und Vollzugriff auf eigene Projekte                  |
+| Kunde / Bauherr | Read-only: Status, Termine und Kundenbericht des eigenen Projekts   |
+
+> Beim Login sind Groß-/Kleinschreibung und Umlaute egal („geschäftsführer“ wird wie „geschaeftsfuehrer“ erkannt). Die Demo-Projekte mit Beispieldaten sind bereits enthalten.
 
 Neue Benutzer werden über die **Benutzerverwaltung** (nur Geschäftsführer) angelegt –
 einschließlich Kunden-/Bauherren-Zugängen mit Projektkopplung.

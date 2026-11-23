@@ -120,34 +120,36 @@ def hash_password(password: str, salt: str) -> str:
     return hashlib.pbkdf2_hmac("sha256", password.encode(), bytes.fromhex(salt), 120_000).hex()
 
 
-def make_user(conn, username, password, full_name, role):
-    salt = os.urandom(16).hex()
-    conn.execute(
+def create_user(conn, username: str, password: str, full_name: str, role: str) -> int:
+    import secrets
+    salt = secrets.token_hex(16)
+    cur = conn.execute(
         "INSERT INTO users (username, password_hash, salt, full_name, role, active, created_at) VALUES (?,?,?,?,?,1,?)",
         (username, hash_password(password, salt), salt, full_name, role, datetime.utcnow().isoformat()),
     )
+    conn.commit()
+    return cur.lastrowid
+
+
+def user_count(conn) -> int:
+    return conn.execute("SELECT COUNT(*) FROM users").fetchone()[0]
 
 
 def seed(conn):
-    make_user(conn, "chef", "demo123", "Anna Chefin", "geschaeftsfuehrer")
-    make_user(conn, "mgmt", "demo123", "Marco Manager", "management")
-    make_user(conn, "pl", "demo123", "Paula Leiterin", "projektleiter")
-    make_user(conn, "pl2", "demo123", "Peter Planer", "projektleiter")
-    make_user(conn, "kunde", "demo123", "Klaus Bauherr", "kunde")
-
-    users = {r["username"]: r["id"] for r in conn.execute("SELECT id, username FROM users")}
+    """Demo-Projekte und -KPI-Daten; Benutzer werden bewusst NICHT angelegt:
+    Der erste Benutzer richtet sich über die Ersteinrichtung als Administrator selbst ein."""
     today = datetime.utcnow().date()
 
     projects = [
-        ("Neubau Bürogebäude Ost", "Bauherr Ost GmbH", "kunde", "chef", "pl",
+        ("Neubau Bürogebäude Ost", "Bauherr Ost GmbH",
          "laufend", "gelb", (today - timedelta(days=120)).isoformat(), (today + timedelta(days=90)).isoformat(), None,
          2_500_000, 1_450_000, 1_250_000, 1_300_000, 12.0, 18.0, 3_200_000, 42, 6,
          "Neubau eines Bürogebäudes mit Tiefgarage, 4 Etagen."),
-        ("Sanierung Schulzentrum West", "Stadt Musterstadt", None, "mgmt", "pl2",
+        ("Sanierung Schulzentrum West", "Stadt Musterstadt",
          "laufend", "gruen", (today - timedelta(days=60)).isoformat(), (today + timedelta(days=150)).isoformat(), None,
          1_800_000, 620_000, 680_000, 700_000, 10.0, 15.0, 2_100_000, 55, 0,
          "Generalsanierung des Schulzentrums, 3 Bauabschnitte."),
-        ("Erweiterung Logistikzentrum", "Logistik AG Nord", "kunde", "chef", "pl",
+        ("Erweiterung Logistikzentrum", "Logistik AG Nord",
          "laufend", "rot", (today - timedelta(days=200)).isoformat(), (today + timedelta(days=30)).isoformat(), None,
          3_900_000, 3_450_000, 3_100_000, 3_600_000, 8.0, 10.0, 4_600_000, 18, 14,
          "Hallerweiterung und Automation der Fördertechnik."),
@@ -158,9 +160,8 @@ def seed(conn):
                start_date, planned_end_date, actual_end_date, budget_soll, cost_ist, earned_value,
                planned_value, margin_soll_pct, roi_expected_pct, business_value, nps_score,
                critical_path_deviation_days, description)
-               VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
-            (p[0], p[1], users.get(p[2]), users[p[4]], p[5], p[6], p[7], p[8], p[9], p[10], p[11],
-             p[12], p[13], p[14], p[15], p[16], p[17], p[18], p[19]),
+               VALUES (?,?,NULL,NULL,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
+            p,
         )
 
     pids = [r["id"] for r in conn.execute("SELECT id FROM projects ORDER BY id")]

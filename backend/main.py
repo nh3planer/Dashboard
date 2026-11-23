@@ -9,8 +9,8 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
 from backend import kpi, reports
-from backend.auth import ROLES, authenticate, create_token, hash_password
-from backend.db import get_db, init_db_and_seed
+from backend.auth import ROLES, authenticate, create_token
+from backend.db import create_user, get_db, init_db_and_seed, user_count
 from backend.rbac import ROLE_MANAGEMENT_KPI, ROLE_STANDARD, ROLE_USER_ADMIN, current_user, require_roles
 
 app = FastAPI(title="Projekt-Dashboard")
@@ -91,6 +91,41 @@ def visible_project_rows(conn, user) -> list:
 
 def assert_project_access(conn, user, project_id) -> bool:
     return any(p["id"] == project_id for p in visible_project_rows(conn, user))
+
+
+# ----------------------------- Ersteinrichtung (Setup) -----------------------------
+
+class SetupData(BaseModel):
+    username: str
+    password: str
+    full_name: str
+
+
+@app.get("/api/setup-status")
+def setup_status():
+    conn = get_db()
+    complete = user_count(conn) > 0
+    conn.close()
+    return {"setup_complete": complete}
+
+
+@app.post("/api/setup")
+def setup(data: SetupData):
+    """Ersteinrichtung:Der allererste Benutzer wird als Administrator (Geschäftsführer) angelegt.
+    Nur solange noch kein Benutzer existiert möglich."""
+    conn = get_db()
+    if user_count(conn) > 0:
+        conn.close()
+        raise HTTPException(409, "Die Ersteinrichtung wurde bereits abgeschlossen – bitte normal anmelden.")
+    if not data.username.strip() or not data.password or len(data.password) < 4:
+        conn.close()
+        raise HTTPException(400, "Benutzername und Passwort (mindestens 4 Zeichen) sind erforderlich.")
+    uid = create_user(conn, data.username.strip(), data.password, data.full_name.strip() or data.username.strip(),
+                      "geschaeftsfuehrer")
+    user = conn.execute("SELECT * FROM users WHERE id = ?", (uid,)).fetchone()
+    conn.close()
+    return {"token": create_token(user), "user": {"id": user["id"], "username": user["username"],
+                                                   "full_name": user["full_name"], "role": user["role"]}}
 
 
 # ----------------------------- Auth -----------------------------
@@ -286,16 +321,41 @@ def user_create(data: UserData, request: Request):
     require_roles(ROLE_USER_ADMIN)(request)
     if data.role not in ROLES:
         raise HTTPException(400, "Unbekannte Rolle")
+    if len(data.password) < 4:
+        raise HTTPException(400, "Passwort muss mindestens 4 Zeichen haben")
     conn = get_db()
     if conn.execute("SELECT 1 FROM users WHERE username = ?", (data.username,)).fetchone():
         conn.close()
         raise HTTPException(400, "Benutzername existiert bereits")
-    import secrets
-    salt = secrets.token_hex(16)
-    conn.execute("INSERT INTO users (username, password_hash, salt, full_name, role, active, created_at) "
-                 "VALUES (?,?,?,?,?,1,?)",
-                 (data.username, hash_password(data.password, salt), salt, data.full_name, data.role,
-                  datetime.utcnow().isoformat()))
+    create_user(conn, data.username, data.password, data.full_name, data.role)
+    conn.close()
+    return {"ok": True}
+
+
+class AssignData(BaseModel):
+    project_manager_id: int | None = None
+    client_user_id: int | None = None
+
+
+@app.post("/api/projects/{pid}/assign")
+def project_assign(pid: int, data: AssignData, request: Request):
+    require_roles(ROLE_USER_ADMIN)(request)
+    conn = get_db()
+    if not conn.execute("SELECT 1 FROM projects WHERE id = ?", (pid,)).fetchone():
+        conn.close()
+        raise HTTPException(404, "Projekt nicht gefunden")
+    if data.project_manager_id is not None:
+        row = conn.execute("SELECT role FROM users WHERE id = ?", (data.project_manager_id,)).fetchone()
+        if not row or row["role"] != "projektleiter":
+            conn.close()
+            raise HTTPException(400, "Projektleiter muss ein Benutzer mit Rolle 'Projektleiter' sein")
+    if data.client_user_id is not None:
+        row = conn.execute("SELECT role FROM users WHERE id = ?", (data.client_user_id,)).fetchone()
+        if not row or row["role"] != "kunde":
+            conn.close()
+            raise HTTPException(400, "Bauherr muss ein Benutzer mit Rolle 'Kunde/Bauherr' sein")
+    conn.execute("UPDATE projects SET project_manager_id = ?, client_user_id = ? WHERE id = ?",
+                 (data.project_manager_id, data.client_user_id, pid))
     conn.commit()
     conn.close()
     return {"ok": True}

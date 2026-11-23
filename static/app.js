@@ -39,12 +39,6 @@ document.getElementById("login-form").addEventListener("submit", async e => {
 function logoutLocal() { token = ""; currentUser = null; sessionStorage.clear(); location.reload(); }
 document.getElementById("logout-btn").addEventListener("click", async () => { try { await api("/logout", { method: "POST" }); } catch {} logoutLocal(); });
 
-function demoLogin(name) {
-  document.getElementById("login-user").value = name;
-  document.getElementById("login-pass").value = "demo123";
-  document.getElementById("login-form").dispatchEvent(new Event("submit", { cancelable: true }));
-}
-
 /* ===================== NAVIGATION ===================== */
 document.querySelectorAll(".nav-btn").forEach(btn => btn.addEventListener("click", () => showView(btn.dataset.view)));
 function showView(name) {
@@ -267,6 +261,39 @@ async function loadUsers() {
     users.map(u => `<tr><td>${u.id}</td><td>${esc(u.username)}</td><td>${esc(u.full_name)}</td>
       <td>${ROLE_LABELS[u.role] || u.role}</td><td>${u.active ? "aktiv" : "deaktiviert"}</td>
       <td>${u.active && u.id !== currentUser.id ? `<button class="btn small" onclick="deactivateUser(${u.id})">Deaktivieren</button>` : ""}</td></tr>`).join("") + `</table>`;
+  await loadAssignments(users);
+}
+
+async function loadAssignments(users) {
+  const projects = await api("/projects");
+  const pls = users.filter(u => u.role === "projektleiter");
+  const kds = users.filter(u => u.role === "kunde");
+  const detail = await Promise.all(projects.map(p => api(`/projects/${p.id}`).then(d => ({ p, d })).catch(() => null)));
+  const sel = (opts, current, label) => `<option value="">– keiner –</option>` +
+    opts.map(u => `<option value="${u.id}" ${u.id === current ? "selected" : "">${esc(u.username)} (${esc(u.full_name)})</option>`).join("");
+  const host = document.getElementById("assignments");
+  if (!host) return;
+  if (!detail.length) { host.innerHTML = "<p class='hint'>Noch keine Projekte vorhanden.</p>"; return; }
+  host.innerHTML = `<table class="data">
+    <tr><th>Projekt</th><th>Projektleiter</th><th>Kunde / Bauherr</th><th></th></tr>` +
+    detail.map(({ p, d }) => `<tr>
+      <td>${esc(p.name)}</td>
+      <td><select class="input" style="min-width:180px" data-pid="${p.id}" data-kind="pl">${sel(pls, d.project?.project_manager_id)}</select></td>
+      <td><select class="input" style="min-width:180px" data-pid="${p.id}" data-kind="kunde">${sel(kds, d.project?.client_user_id)}</select></td>
+      <td><button class="btn small" onclick="saveAssignment(${p.id})">Speichern</button></td>
+    </tr>`).join("") + "</table>" +
+    `<p class="hint">Hier schalten Sie Bereiche frei: Der gewählte Projektleiter erhält Vollzugriff auf das Projekt, der gewählte Kunde/Bauherr sieht Status und Termine seines Projekts.</p>`;
+}
+
+async function saveAssignment(pid) {
+  const plSel = document.querySelector(`select[data-pid="${pid}"][data-kind="pl"]`);
+  const kdSel = document.querySelector(`select[data-pid="${pid}"][data-kind="kunde"]`);
+  try {
+    await api(`/projects/${pid}/assign`, { method: "POST", body: JSON.stringify({
+      project_manager_id: plSel.value ? Number(plSel.value) : null,
+      client_user_id: kdSel.value ? Number(kdSel.value) : null }) });
+    alert("Zuordnung gespeichert.");
+  } catch (e) { alert("Fehler: " + e.message); }
 }
 
 async function deactivateUser(id) {
@@ -292,10 +319,40 @@ function drawChart(canvasId, type, data, options = {}) {
   charts[canvasId] = new Chart(ctx, { type, data, options: { responsive: true, ...options } });
 }
 
+/* ===================== ERSTEINRICHTUNG ===================== */
+async function submitSetup(e) {
+  e.preventDefault();
+  const err = document.getElementById("setup-error");
+  err.classList.add("hidden");
+  const pass = document.getElementById("su-pass").value;
+  if (pass !== document.getElementById("su-pass2").value) {
+    err.textContent = "Die beiden Passwörter stimmen nicht überein."; err.classList.remove("hidden"); return;
+  }
+  try {
+    const res = await fetch(API + "/setup", { method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username: document.getElementById("su-username").value.trim(),
+                             password: pass, full_name: document.getElementById("su-fullname").value.trim() }) });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.detail || "Einrichtung fehlgeschlagen");
+    token = data.token; currentUser = data.user;
+    sessionStorage.setItem("pd_token", token);
+    sessionStorage.setItem("pd_user", JSON.stringify(currentUser));
+    bootApp();
+  } catch (ex) { err.textContent = ex.message; err.classList.remove("hidden"); }
+}
+
 /* ===================== INIT ===================== */
 (async () => {
   if (token) {
     try { currentUser = JSON.parse(sessionStorage.getItem("pd_user")); await api("/me"); bootApp(); return; } catch {}
   }
+  try {
+    const st = await (await fetch(API + "/setup-status")).json();
+    if (!st.setup_complete) {
+      document.getElementById("setup-view").classList.remove("hidden");
+      document.getElementById("setup-form").addEventListener("submit", submitSetup);
+      return;
+    }
+  } catch {}
   document.getElementById("login-view").classList.remove("hidden");
 })();

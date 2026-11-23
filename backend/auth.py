@@ -36,19 +36,10 @@ def decode_token(token: str) -> dict:
     return jwt.decode(token, SECRET, algorithms=["HS256"])
 
 
-ALIASES = {
-    "geschaeftsfuehrer": "chef",
-    "management": "mgmt",
-    "projektleiter": "pl",
-    "projektleiter2": "pl2",
-}
-
-
 def normalize_username(name: str) -> str:
-    n = (name.strip().lower()
-         .replace("ä", "ae").replace("ö", "oe").replace("ü", "ue")
-         .replace("ß", "ss"))
-    return ALIASES.get(n, n)
+    return (name.strip().lower()
+            .replace("ä", "ae").replace("ö", "oe").replace("ü", "ue")
+            .replace("ß", "ss"))
 
 
 def username_variants(name: str) -> list:
@@ -59,16 +50,15 @@ def username_variants(name: str) -> list:
 def authenticate(username: str, password: str):
     conn = get_db()
     user = None
-    for variant in username_variants(username):
-        for col in ("username", "full_name"):
-            row = conn.execute(
-                f"SELECT * FROM users WHERE {col} = ? AND active = 1", (variant,)).fetchone()
-            if row:
-                user = row
-                break
-        if user:
-            break
+    rows = conn.execute("SELECT * FROM users WHERE active = 1").fetchall()
     conn.close()
+    input_variants = set(username_variants(username))
+    for row in rows:
+        stored = {row["username"], row["full_name"]}
+        stored |= {normalize_username(s) for s in stored}
+        if input_variants & stored:
+            user = row
+            break
     if not user or not verify_password(password, user["salt"], user["password_hash"]):
         return None
     return user

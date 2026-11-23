@@ -9,9 +9,27 @@
 </head>
 <body>
 
+<!-- ===================== ERSTEINRICHTUNG ===================== -->
+<div id="setup-view" class="login-wrap hidden">
+  <form id="setup-form" class="login-card">
+    <h1>🚀 Ersteinrichtung</h1>
+    <p class="sub">Willkommen! Legen Sie den <b>Administrator</b> an – Benutzername und Passwort <b> Ihrer Wahl</b>.</p>
+    <label>Administrator-Benutzername (Ihre Wahl)</label>
+    <input id="su-username" type="text" autocomplete="username" required>
+    <label>Ihr vollständiger Name</label>
+    <input id="su-fullname" type="text" autocomplete="name" required>
+    <label>Passwort (Ihre Wahl, mind. 4 Zeichen)</label>
+    <input id="su-pass" type="password" autocomplete="new-password" required>
+    <label>Passwort wiederholen</label>
+    <input id="su-pass2" type="password" autocomplete="new-password" required>
+    <button type="submit" class="btn primary">Administrator anlegen &amp; Dashboard öffnen</button>
+    <p id="setup-error" class="error hidden"></p>
+    <p class="hint">Danach legen Sie als Administrator alle weiteren Benutzer (Projektleiter, Management, Kunden/Bauherrn) im Bereich „Benutzerverwaltung“ an.</p>
+  </form>
+</div>
+
 <!-- ===================== LOGIN ===================== -->
-<div id="login-view" class="login-wrap">
-  <form id="login-form" class="login-card">
+<div id="login-view" class="login-wrap hidden">
     <h1>📊 Projekt-Dashboard</h1>
     <p class="sub">Anmeldung – Rollenbasierte Zugriffskontrolle</p>
     <label>Benutzername</label>
@@ -20,15 +38,7 @@
     <input id="login-pass" type="password" autocomplete="current-password" required>
     <button type="submit" class="btn primary">Anmelden</button>
     <p id="login-error" class="error hidden"></p>
-    <details class="demo-hint" open>
-      <summary>Demo-Zugänge – einfach anklicken, kein Tippen nötig (Passwort: demo123)</summary>
-      <div class="demo-buttons">
-        <button type="button" class="btn demo-btn" onclick="demoLogin('chef')">👔 Geschäftsführer (alles)</button>
-        <button type="button" class="btn demo-btn" onclick="demoLogin('mgmt')">📊 Management</button>
-        <button type="button" class="btn demo-btn" onclick="demoLogin('pl')">🛠️ Projektleiter</button>
-        <button type="button" class="btn demo-btn" onclick="demoLogin('kunde')">🏗️ Kunde / Bauherr</button>
-      </div>
-    </details>
+    <p class="hint">Die Zugänge werden von Ihrem Administrator vergeben. Erster Start? Dann erscheint automatisch die Ersteinrichtung.</p>
   </form>
 </div>
 
@@ -134,6 +144,10 @@
         <p id="nu-msg" class="hint"></p>
       </div>
       <div id="users-table"></div>
+      <div class="card">
+        <h3>Projekt-Zuordnungen (Bereiche freischalten)</h3>
+        <div id="assignments"></div>
+      </div>
       <div class="hint card">
         <b>Rechteübersicht:</b>
         <ul>

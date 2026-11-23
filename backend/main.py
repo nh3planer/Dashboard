@@ -423,7 +423,8 @@ def report_download(report_type: str, pid: int, request: Request):
 
 @app.get("/")
 def index():
-    return FileResponse(os.path.join(STATIC_DIR, "index.html"))
+    return FileResponse(os.path.join(STATIC_DIR, "index.html"),
+                        headers={"Cache-Control": "no-cache, must-revalidate"})
 
 
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")

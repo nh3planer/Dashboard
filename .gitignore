@@ -2,3 +2,5 @@ __pycache__/
 *.pyc
 data/
 .vibe_sample_mgmt_report.pdf
+node_modules/
+client/dist/

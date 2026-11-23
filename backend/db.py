@@ -129,25 +129,25 @@ def make_user(conn, username, password, full_name, role):
 
 
 def seed(conn):
-    make_user(conn, "geschaeftsfuehrer", "demo123", "Anna Chefin", "geschaeftsfuehrer")
-    make_user(conn, "management", "demo123", "Marco Manager", "management")
-    make_user(conn, "projektleiter", "demo123", "Paula Leiterin", "projektleiter")
-    make_user(conn, "projektleiter2", "demo123", "Peter Planer", "projektleiter")
+    make_user(conn, "chef", "demo123", "Anna Chefin", "geschaeftsfuehrer")
+    make_user(conn, "mgmt", "demo123", "Marco Manager", "management")
+    make_user(conn, "pl", "demo123", "Paula Leiterin", "projektleiter")
+    make_user(conn, "pl2", "demo123", "Peter Planer", "projektleiter")
     make_user(conn, "kunde", "demo123", "Klaus Bauherr", "kunde")
 
     users = {r["username"]: r["id"] for r in conn.execute("SELECT id, username FROM users")}
     today = datetime.utcnow().date()
 
     projects = [
-        ("Neubau Bürogebäude Ost", "Bauherr Ost GmbH", "kunde", "geschaeftsfuehrer", "projektleiter",
+        ("Neubau Bürogebäude Ost", "Bauherr Ost GmbH", "kunde", "chef", "pl",
          "laufend", "gelb", (today - timedelta(days=120)).isoformat(), (today + timedelta(days=90)).isoformat(), None,
          2_500_000, 1_450_000, 1_250_000, 1_300_000, 12.0, 18.0, 3_200_000, 42, 6,
          "Neubau eines Bürogebäudes mit Tiefgarage, 4 Etagen."),
-        ("Sanierung Schulzentrum West", "Stadt Musterstadt", None, "management", "projektleiter2",
+        ("Sanierung Schulzentrum West", "Stadt Musterstadt", None, "mgmt", "pl2",
          "laufend", "gruen", (today - timedelta(days=60)).isoformat(), (today + timedelta(days=150)).isoformat(), None,
          1_800_000, 620_000, 680_000, 700_000, 10.0, 15.0, 2_100_000, 55, 0,
          "Generalsanierung des Schulzentrums, 3 Bauabschnitte."),
-        ("Erweiterung Logistikzentrum", "Logistik AG Nord", "kunde", "geschaeftsfuehrer", "projektleiter",
+        ("Erweiterung Logistikzentrum", "Logistik AG Nord", "kunde", "chef", "pl",
          "laufend", "rot", (today - timedelta(days=200)).isoformat(), (today + timedelta(days=30)).isoformat(), None,
          3_900_000, 3_450_000, 3_100_000, 3_600_000, 8.0, 10.0, 4_600_000, 18, 14,
          "Hallerweiterung und Automation der Fördertechnik."),

@@ -22,6 +22,8 @@ body { font-family: "Segoe UI", system-ui, -apple-system, sans-serif; background
 .login-card button { width: 100%; margin-top: 1.2rem; }
 .demo-hint { margin-top: 1.2rem; font-size: .8rem; color: #67788c; }
 .demo-hint ul { margin: .5rem 0 0 1.1rem; }
+.demo-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: .5rem; margin: .6rem 0 .2rem; }
+.demo-btn { background: #e8eff7; color: var(--navy); font-size: .8rem; padding: .45rem .5rem; border: 1px solid #c6d2df; }
 .error { color: var(--red); margin-top: .8rem; font-size: .85rem; }
 
 /* ---------- Layout ---------- */

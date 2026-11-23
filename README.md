@@ -29,11 +29,13 @@ Danach im Browser öffnen: <http://localhost:8000>
 
 | Benutzername        | Rolle           | Rechte                                                              |
 |---------------------|-----------------|---------------------------------------------------------------------|
-| `geschaeftsfuehrer` | Geschäftsführer | Alle Bereiche inkl. Benutzerverwaltung und Management-KPIs          |
-| `management`        | Management      | Standard- & Management-KPIs, alle Projekte, PDF-Reports             |
-| `projektleiter`     | Projektleiter   | Standard-KPIs, Vollzugriff auf eigene Projekte                      |
-| `projektleiter2`    | Projektleiter   | Standard-KPIs, Vollzugriff auf eigene Projekte                      |
+| `chef`              | Geschäftsführer | Alle Bereiche inkl. Benutzerverwaltung und Management-KPIs          |
+| `mgmt`              | Management      | Standard- & Management-KPIs, alle Projekte, PDF-Reports             |
+| `pl` / `pl2`        | Projektleiter   | Standard-KPIs, Vollzugriff auf eigene Projekte                      |
 | `kunde`             | Kunde / Bauherr | Read-only: Status, Termine und Kundenbericht des eigenen Projekts   |
+
+> **Tipp:** Auf der Anmeldeseite gibt es Ein-Klick-Buttons für alle Demo-Zugänge – kein Tippen nötig.
+> Die langen Namen (`geschaeftsfuehrer`, `management`, `projektleiter`) bleiben als Alias weiterhin gültig, Umlaute („geschäftsführer“) und Groß-/Kleinschreibung sind egal.
 
 Neue Benutzer werden über die **Benutzerverwaltung** (nur Geschäftsführer) angelegt –
 einschließlich Kunden-/Bauherren-Zugängen mit Projektkopplung.

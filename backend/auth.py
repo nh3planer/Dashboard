@@ -36,10 +36,19 @@ def decode_token(token: str) -> dict:
     return jwt.decode(token, SECRET, algorithms=["HS256"])
 
 
+ALIASES = {
+    "geschaeftsfuehrer": "chef",
+    "management": "mgmt",
+    "projektleiter": "pl",
+    "projektleiter2": "pl2",
+}
+
+
 def normalize_username(name: str) -> str:
-    return (name.strip().lower()
-            .replace("ä", "ae").replace("ö", "oe").replace("ü", "ue")
-            .replace("ß", "ss").replace("ú", "ue"))
+    n = (name.strip().lower()
+         .replace("ä", "ae").replace("ö", "oe").replace("ü", "ue")
+         .replace("ß", "ss"))
+    return ALIASES.get(n, n)
 
 
 def username_variants(name: str) -> list:

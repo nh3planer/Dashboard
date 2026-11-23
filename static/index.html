@@ -20,14 +20,14 @@
     <input id="login-pass" type="password" autocomplete="current-password" required>
     <button type="submit" class="btn primary">Anmelden</button>
     <p id="login-error" class="error hidden"></p>
-    <details class="demo-hint">
-      <summary>Demo-Zugänge</summary>
-      <ul>
-        <li><b>geschaeftsfuehrer / demo123</b> – Alles inkl. Benutzerverwaltung &amp; Management-KPIs</li>
-        <li><b>management / demo123</b> – Standard- &amp; Management-KPIs, alle Projekte</li>
-        <li><b>projektleiter / demo123</b> – Standard-KPIs, eigene Projekte</li>
-        <li><b>kunde / demo123</b> – Bauherren-Sicht: Status &amp; Termine des eigenen Projekts</li>
-      </ul>
+    <details class="demo-hint" open>
+      <summary>Demo-Zugänge – einfach anklicken, kein Tippen nötig (Passwort: demo123)</summary>
+      <div class="demo-buttons">
+        <button type="button" class="btn demo-btn" onclick="demoLogin('chef')">👔 Geschäftsführer (alles)</button>
+        <button type="button" class="btn demo-btn" onclick="demoLogin('mgmt')">📊 Management</button>
+        <button type="button" class="btn demo-btn" onclick="demoLogin('pl')">🛠️ Projektleiter</button>
+        <button type="button" class="btn demo-btn" onclick="demoLogin('kunde')">🏗️ Kunde / Bauherr</button>
+      </div>
     </details>
   </form>
 </div>

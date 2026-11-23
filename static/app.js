@@ -39,6 +39,12 @@ document.getElementById("login-form").addEventListener("submit", async e => {
 function logoutLocal() { token = ""; currentUser = null; sessionStorage.clear(); location.reload(); }
 document.getElementById("logout-btn").addEventListener("click", async () => { try { await api("/logout", { method: "POST" }); } catch {} logoutLocal(); });
 
+function demoLogin(name) {
+  document.getElementById("login-user").value = name;
+  document.getElementById("login-pass").value = "demo123";
+  document.getElementById("login-form").dispatchEvent(new Event("submit", { cancelable: true }));
+}
+
 /* ===================== NAVIGATION ===================== */
 document.querySelectorAll(".nav-btn").forEach(btn => btn.addEventListener("click", () => showView(btn.dataset.view)));
 function showView(name) {
